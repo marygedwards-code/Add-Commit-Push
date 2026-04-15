@@ -1,33 +1,36 @@
 import subprocess
 import sys
 
-def run_command(command):
-    """Print command, run it, then print results."""
+def run_cmd(command):
+    """Run a command, print it, then show output."""
     print(f"\n$ {command}\n")
     result = subprocess.run(command, shell=True, text=True, capture_output=True)
+
     print(result.stdout)
     if result.stderr:
         print("ERROR:", result.stderr)
+
     return result
 
 def main():
     commit_message = "Auto commit"
     force = False
 
-    # Parse arguments
     args = sys.argv[1:]
 
+    # Get commit message (-m "message")
     if "-m" in args:
-        idx = args.index("-m")
-        if idx + 1 < len(args):
-            commit_message = args[idx + 1]
+        i = args.index("-m")
+        if i + 1 < len(args):
+            commit_message = args[i + 1]
 
+    # Check for force flag (-f)
     if "-f" in args:
         force = True
 
     # Step 1: git status
     print("\ngit status:")
-    run_command("git status")
+    run_cmd("git status")
 
     # Commands to run
     commands = [
@@ -36,20 +39,21 @@ def main():
         "git push"
     ]
 
-    print("\nQueued Commands:")
+    # Show queued commands
+    print("\nQueued commands:")
     for c in commands:
         print(c)
 
-    # Confirmation
+    # Ask for confirmation (unless force mode)
     if not force:
-        confirm = input("\nRun these commands? (y/n): ").lower()
-        if confirm != "y":
+        answer = input("\nRun these commands? (y/n): ").lower()
+        if answer != "y":
             print("Cancelled.")
             return
 
-    # Execute commands
+    # Run commands
     for c in commands:
-        run_command(c)
+        run_cmd(c)
 
 if __name__ == "__main__":
     main()
